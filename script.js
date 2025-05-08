@@ -100,7 +100,7 @@ function calculateAvgLast10Raw(historyArray) {
     // Requires at least 10 total spins in history
     if (historyArray.length < 10) return null;
 
-    const last10Spins = historyArray.slice(-10); // Get the last 10 entries
+    const last10Spins = historyArray.slice(-10); // Get the last up to 10 entries
 
     let sum = 0;
     let count = 0; // Count valid 1-36 numbers for average
@@ -272,6 +272,27 @@ function getSuggestion(e3Class, e4Class) {
 
 // --- Helper Function: Get Surrounding Numbers String (Equivalent to E5 logic) ---
 function getSurroundingNumbersString(spinResult) {
+    // List of numbers adjacent to 0 or 00 that we want to highlight
+    const zeroAdjacentNumbers = [1, 2, 27, 28, 14, 9, 13, 10]; // Your list
+
+    // Helper to format a single number with highlighting if it's zero-adjacent
+    function formatNumberWithHighlight(number) {
+        // Check if the number (converted to a string or kept as string "00") is in our list
+        // Ensure we compare the number itself, not its quadrant/half
+        const numValue = (typeof number === 'number' && !isNaN(number)) ? number : String(number); // Handle 0 and "00" comparison
+
+        // Use String(number) for the comparison array if zeroAdjacentNumbers contains strings like "1", "2" etc.
+        // Or convert array to numbers if it contains numbers.
+        // Let's convert the list to strings for robust comparison against string/number values from wheelData
+        const zeroAdjacentStrings = zeroAdjacentNumbers.map(String);
+
+        if (zeroAdjacentStrings.includes(String(number))) { // Compare string representations
+            // Wrap the number in a span with the zero-adjacent class
+            return `<span class="zero-adjacent">${number}</span>`;
+        }
+        return String(number); // Otherwise, just return the number as a string
+    }
+
     // Handle blank or invalid input early
      if (spinResult === "" || spinResult === null || typeof spinResult === 'undefined') {
         return ""; // Return blank string
@@ -291,7 +312,10 @@ function getSurroundingNumbersString(spinResult) {
         // Find the position of the spin result in the wheel data (using 0-based index for JS arrays)
         // Use a loop for matching to handle strict type matching (number 0 vs string "00")
         let spinMatchIndex = -1;
+        // Ensure we compare the value from wheelData correctly against numberToMatch
         for(let i = 0; i < wheelData.length; i++) {
+            // Need a consistent comparison: convert both to string or handle types explicitly
+            // Let's compare parsedInput (number or "00") directly to wheelData elements
             if (wheelData[i] === numberToMatch) {
                 spinMatchIndex = i;
                 break;
@@ -322,10 +346,13 @@ function getSurroundingNumbersString(spinResult) {
             oppositeNumbers.push(wheelData[position]);
         }
 
-        // Build the final output string
-        let outputString = "| " + surroundingNumbers.join(" | ") + " | ";
+        // Build the final output string, applying formatting to each number
+        let outputParts = surroundingNumbers.map(formatNumberWithHighlight);
+        let outputString = "| " + outputParts.join(" | ") + " | ";
         outputString += " --- | "; // The separator you found
-        outputString += oppositeNumbers.join(" | ") + " |";
+        outputParts = oppositeNumbers.map(formatNumberWithHighlight);
+        outputString += outputParts.join(" | ") + " |";
+
 
         return outputString;
 
@@ -439,7 +466,8 @@ function updateAnalysisDisplay() {
 
     // --- Get & Display Surrounding Numbers for the LAST spin ---
      const surroundingString = getSurroundingNumbersString(lastSpinFromHistory);
-     surroundingNumbersOutput.textContent = surroundingString;
+     surroundingNumbersOutput.innerHTML = surroundingString; // Use innerHTML to render HTML tags
+
 
      // --- Display History Lists ---
      // Get the last 10 spins (or fewer)
