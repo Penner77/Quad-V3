@@ -155,7 +155,7 @@ function classifyE4(avg10) {
 }
 
 
-// --- Helper Function: Get Suggestion (V2 - Quadrant/Half/Zone Framing & Intricate Web) ---
+// --- Helper Function: Get Suggestion (V3 - Quadrant/Half/Zone Framing & Intricate Web) ---
 // This function takes the classified states of E3 (sum of 4) and E4 (avg of 10)
 // and outputs a detailed suggestion string based on their combination.
 function getSuggestion(e3Class, e4Class) {
@@ -241,7 +241,7 @@ function getSuggestion(e3Class, e4Class) {
     // Case 11: Conflict (Low E3 vs High E4)
     // Quadrant concentration low, but overall numbers high. Strong internal conflict.
     if ((e3Class === "E3_Low" || e3Class === "E3_MidLow") && (e4Class === "E4_High" || e4Class === "E4_High")) {
-         return "Conflict: Low Quads vs High Avg. Indicators oppose. Focus boundary zones: Q2/Q3 border (18/19), Q1/Q4 border (9/28). Consider Splits bridging halves/quads.";
+         return "Conflict: Low Quads vs High Avg. Indicators oppose. Focus boundary zones: Q2/Q3 border (18/19), Q1/K4 border (9/28). Consider Splits bridging halves/quads."; // Typo K4 here
     }
      if ((e3Class === "E3_Low" || e3Class === "E3_MidLow") && (e4Class === "E4_MidHigh")) { // Added MidHigh check
          return "Conflict: Low Quads vs High Avg. Indicators oppose. Focus boundary zones: Q2/Q3 border (18/19), Q1/Q4 border (9/28). Consider Splits bridging halves/quads.";
@@ -312,10 +312,7 @@ function getSurroundingNumbersString(spinResult) {
         // Find the position of the spin result in the wheel data (using 0-based index for JS arrays)
         // Use a loop for matching to handle strict type matching (number 0 vs string "00")
         let spinMatchIndex = -1;
-        // Ensure we compare the value from wheelData correctly against numberToMatch
         for(let i = 0; i < wheelData.length; i++) {
-            // Need a consistent comparison: convert both to string or handle types explicitly
-            // Let's compare parsedInput (number or "00") directly to wheelData elements
             if (wheelData[i] === numberToMatch) {
                 spinMatchIndex = i;
                 break;
@@ -432,9 +429,9 @@ function updateAnalysisDisplay() {
         surroundingNumbersOutput.textContent = "";
         lastSpinQuadrantOutput.textContent = "";
         lastSpinHalfOutput.textContent = "";
-        last10SpinsList.textContent = "";
-        last10QuadrantsList.textContent = "";
-        last10HalvesList.textContent = "";
+        last10SpinsList.textContent = ""; // Clear history display
+        last10QuadrantsList.textContent = ""; // Clear Q history display
+        last10HalvesList.textContent = ""; // Clear H history display
         return;
     }
 
